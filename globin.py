@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """57 command line utility for adding scripts to local & global $PATH"""
 import os
+import subprocess
 import sys
 import argparse
 
@@ -20,19 +21,33 @@ class ExistsInPathError( Error ):
 
 def link_if_empty( target, destination ):
     if not os.path.isfile( destination ):
-        os.symlink( script, global_link_location )
+        os.symlink( script, destination )
     else:
-        raise ExistsInPathError( global_link_location )
+        raise ExistsInPathError( destination )
+
+
+def command_used( cmd ):
+    check = subprocess.Popen( [ 'which', cmd ], stdout = subprocess.PIPE )
+    if check.stdout.read(): 
+        return True
+    else: 
+        return False
+
 
 if __name__ == '__main__':
     # Argument parsing stuff
     program = 'globin'
     parser = argparse.ArgumentParser( prog = program )    
-    parser.add_argument( 'program',
-                         help = 'name of the program - also the command you will use from stdin')
+    parser.add_argument( 'command',
+                         help = 'the command you will use from stdin')
     parser.add_argument( 'path',
                          help = "the path to the program you want to add to the global path" )
     args = parser.parse_args()    
+
+    # Check to see if the program name is in use
+    if command_used( args.command ):
+        raise ExistsInPathError( args.command )
+        sys.exit()
 
     # Get the script location
     script = os.path.abspath( args.path )
@@ -41,8 +56,9 @@ if __name__ == '__main__':
         sys.exit()
     
     # Link location definitions
-    global_link_location = os.path.join( '/usr/local/bin', args.program )
-    home_link_loc = os.path.join( home_bin_path, program )
+    home_bin_path = os.path.join(  os.environ['HOME'], 'bin' )    
+    global_link_location = os.path.join( '/usr/local/bin', args.command )
+    home_link_loc = os.path.join( home_bin_path, args.command )
 
     # Put the script into the global path
     if os.access( '/usr/local/bin', os.W_OK ):
@@ -51,8 +67,7 @@ if __name__ == '__main__':
         print """ No write access to global path - file only added locally"""         
 
     # Put the script into the local path
-    home_bin_path = os.path.join(  os.environ['HOME'], 'bin' )    
     if os.path.isdir( home_bin_path ):
         link_if_empty( script, home_link_loc )
     
-    print "%s added to $PATH" % program
+    print "%s added to $PATH" % args.command
