@@ -1,1 +1,1 @@
-from globin import *
+from .globin import *

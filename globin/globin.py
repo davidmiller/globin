@@ -54,7 +54,7 @@ if __name__ == '__main__':
     # Get the script location
     script = os.path.abspath( args.path )
     if not os.path.isfile( script ):
-        print 'the path to the script you entered turns out not to be a file'
+        print('the path to the script you entered turns out not to be a file')
         sys.exit()
     
     if args.executable:
@@ -73,11 +73,11 @@ if __name__ == '__main__':
     # Put the script into the local path
             if os.path.isdir( home_bin_path ):
                 link_if_empty( script, home_link_loc )
-                print """ No write access to global path - file only added locally"""                 
+                print(""" No write access to global path - file only added locally""")                 
             else:
-                print "No ~/bin found so unable to add to user-specific path"
+                print("No ~/bin found so unable to add to user-specific path")
                 sys.exit()
-    print "%s added to $PATH" % args.command
+    print("%s added to $PATH" % args.command)
 
 
     
