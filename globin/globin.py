@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Command line utility for adding scripts to local & global $PATH"""
 import os
 import subprocess
@@ -16,11 +16,11 @@ class ExistsInPathError( Error ):
     def __init__( self, value ):
         self.value = value
     def __str__( self ):
-        return repr( self.value )
+        return "looks like that command already exists!"
 
 
 def link_if_empty( target, destination ):
-    if not os.path.isfile( destination ):
+    if not os.path.lexists( destination ):
         os.symlink( script, destination )
     else:
         raise ExistsInPathError( destination )
